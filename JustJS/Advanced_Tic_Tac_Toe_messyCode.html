@@ -1,0 +1,571 @@
+<!-- Fung 2014 Trying to learn JS -->
+
+<!DOCTYPE html>
+<html lang="en-US">
+
+<head>
+	<meta charset="utf-8">
+</head>
+<style>
+	#gridContainer{
+		width:540px;
+		height:540px;
+		/*margin:auto;*/
+		margin-left:10%;
+		display:block;
+		background:#ddd;
+		padding:30px;
+		float: left;
+		position: relative;
+	}
+
+	#the_grid{
+		position:absolute;
+		left:140px;
+		top:140px;
+
+		transition:all 0.3s;
+		/*left:140px;*/
+	}
+
+	#the_grid .grid_hor, #the_grid .grid_ver{
+		background: green;
+		position: absolute;
+		margin:0;
+		padding: 0;
+	}
+
+	#the_grid .grid_ver{
+		width:10px;
+		height:100px;
+	}
+
+	#the_grid .grid_ver1, #the_grid .grid_ver3, #the_grid .grid_ver5{
+		left: 100px;
+	}
+
+	#the_grid .grid_ver2, #the_grid .grid_ver4, #the_grid .grid_ver6{
+		left: 210px;
+	}
+
+	#the_grid .grid_hor{
+		width:320px;
+		height:10px;
+	}
+
+	#the_grid .grid_ver3, #the_grid .grid_ver4{
+		top:110px;
+	}
+
+	#the_grid .grid_ver5, #the_grid .grid_ver6{
+		top:220px;
+	}
+
+	#the_grid .grid_hor1{
+		top:100px;
+	}
+
+	#the_grid .grid_hor2{
+		top:210px;
+	}
+
+	
+
+	.box{
+		width:100px;
+		height:100px;
+		display:block;
+		background:#CFF;
+		font-size:80px;
+    line-height: 100px;
+    text-align: center;
+		float:left;
+	}
+
+	.ver{
+		width:6px;
+		margin:0 2px;
+		height:100px;
+	}
+
+	.hor{
+		width:100px;
+		height:6px;
+		margin:2px 0;
+	}
+
+	.dot{
+		width:6px;
+		height:6px;
+		margin:2px;
+	}
+
+	.hor, .dot, .ver{
+		display:block;
+		background:black;
+		float:left;
+	}
+
+	.clear{
+		clear:both;
+	}
+</style>
+
+<style>
+	.box a{
+		width:100px;
+		height:100px;
+		display:block;
+	}
+
+	#turn{
+		width:320px;
+		height:200px;
+		display:block;
+		background: #ddd;
+		float: left;
+		margin-left:10%;
+		margin-top:20px;
+		font-size: 80px;
+		line-height: 200px;
+		padding-left: 20px;
+	}
+
+	#moveGridBlock{
+		margin-left:10%;
+		margin-top:95px; /* (540 grid + 60 grid padding - 210 control height - 200 text)/2 */
+		width:320px;
+		height:210px;
+		display:block;
+		background:#2af;
+		float: left;
+		padding:10px;
+	}
+
+	#moveGridBlock .block{
+		width:100px;
+		height:100px;
+		display:block;
+		background:#CFF;
+		float:left;
+		margin:0;
+		padding: 0;
+		font-size:80px;
+    line-height: 100px;
+    text-align: center;
+    font-weight: bold;
+	}
+
+	#moveGridBlock a:link,a:visited{
+		color:green;
+		text-decoration:none;
+	}
+
+	#moveGridBlock div.block_ver{
+		width:10px;
+		height:100px;
+		display:block;
+		background:#2aF;
+		float:left;
+		margin:0;
+		padding: 0;
+	}
+
+	#moveGridBlock div.block_hor{
+		width:320px;
+		height:10px;
+		display:block;
+		background:#2aF;
+		margin:0;
+		padding: 0;
+	}
+
+	#win_message{
+		position: fixed;
+		z-index:2;
+		top:0;
+		left:0;
+		right:0;
+		bottom:0;
+		background: #111;
+		opacity: 0.6;
+
+		display:none;
+	}
+
+	#win_message div{
+		font-size: 300px;
+		margin-left:5%;
+		width:800px;
+		padding:0;
+		display:block;
+		color:red;
+		float:left;
+	}
+
+	#win_message a{
+		font-size: 100px;
+		width:700px;
+		text-decoration: none;
+		position:relative;
+		top:100px;
+		right:100px;
+		border:1px solid;
+	}
+
+
+</style>
+<!-- Fung 2014 Trying to learn JS -->
+
+<body>
+	<div id="win_message"><div>X won.</div><a href="#" onClick="location.reload(true);">Play Again</a></div>
+
+	<div id="gridContainer">
+		<div id="the_grid">
+			<div class="grid_ver grid_ver1"></div>
+			<div class="grid_ver grid_ver2"></div>
+
+			<div class="clear"></div>
+
+			<div class="grid_hor grid_hor1"></div>
+
+			<div class="grid_ver grid_ver3"></div>
+			<div class="grid_ver grid_ver4"></div>
+
+			<div class="clear"></div>
+
+			<div class="grid_hor grid_hor2"></div>
+
+			<div class="grid_ver grid_ver5"></div>
+			<div class="grid_ver grid_ver6"></div>
+
+			<div class="clear"></div>
+		</div> <!--grid container -->
+
+		<!-- row 1 -->
+		<div class="box grid_1" id="b11"><a href="#" class="inside"></a></div>
+		<div class="ver"></div>
+		<div class="box grid_1 grid_2" id="b12"><a href="#" class="inside"></a></div>
+		<div class="ver"></div>
+		<div class="box grid_1 grid_2 grid_3" id="b13"><a href="#" class="inside"></a></div>
+		<div class="ver"></div>
+		<div class="box grid_2 grid_3" id="b14"><a href="#" class="inside"></a></div>
+		<div class="ver"></div>
+		<div class="box grid_3" id="b15"><a href="#" class="inside"></a></div>
+
+		<div class="clear"></div>
+
+		<!-- hor 1 -->
+		<div class="hor"></div>
+		<div class="dot"></div>
+		<div class="hor"></div>
+		<div class="dot"></div>
+		<div class="hor"></div>
+		<div class="dot"></div>
+		<div class="hor"></div>
+		<div class="dot"></div>
+		<div class="hor"></div>
+
+		<div class="clear"></div>
+
+		<!-- row 2 -->
+		<div class="box grid_1 grid_4" id="b21"><a href="#" class="inside"></a></div>
+		<div class="ver"></div>
+		<div class="box grid_1 grid_2 grid_4 grid_5" id="b22"><a href="#" class="inside"></a></div>
+		<div class="ver"></div>
+		<div class="box grid_1 grid_2 grid_3 grid_4 grid_5 grid_6" id="b23"><a href="#" class="inside"></a></div>
+		<div class="ver"></div>
+		<div class="box grid_2 grid_3 grid_5 grid_6" id="b24"><a href="#" class="inside"></a></div>
+		<div class="ver"></div>
+		<div class="box grid_3 grid_6" id="b25"><a href="#" class="inside"></a></div>
+
+		<div class="clear"></div>
+
+		<!-- hor 2 -->
+		<div class="hor"></div>
+		<div class="dot"></div>
+		<div class="hor"></div>
+		<div class="dot"></div>
+		<div class="hor"></div>
+		<div class="dot"></div>
+		<div class="hor"></div>
+		<div class="dot"></div>
+		<div class="hor"></div>
+
+		<div class="clear"></div>
+
+		<!-- row 3 -->
+		<div class="box grid_1 grid_4 grid_7" id="b31"><a href="#" class="inside"></a></div>
+		<div class="ver"></div>
+		<div class="box grid_1 grid_2 grid_4 grid_5 grid_7 grid_8" id="b32"><a href="#" class="inside"></a></div>
+		<div class="ver"></div>
+		<div class="box grid_1 grid_2 grid_3 grid_4 grid_5 grid_6 grid_7 grid_8 grid_9" id="b33"><a href="#" class="inside"></a></div>
+		<div class="ver"></div>
+		<div class="box grid_2 grid_3 grid_5 grid_6 grid_8 grid_9" id="b34"><a href="#" class="inside"></a></div>
+		<div class="ver"></div>
+		<div class="box grid_3 grid_6 grid_9" id="b35"><a href="#" class="inside"></a></div>
+
+		<div class="clear"></div>
+
+		<!-- hor 3 -->
+		<div class="hor"></div>
+		<div class="dot"></div>
+		<div class="hor"></div>
+		<div class="dot"></div>
+		<div class="hor"></div>
+		<div class="dot"></div>
+		<div class="hor"></div>
+		<div class="dot"></div>
+		<div class="hor"></div>
+
+		<div class="clear"></div>
+
+		<!-- row 4 -->
+		<div class="box grid_4 grid_7" id="b41"><a href="#" class="inside"></a></div>
+		<div class="ver"></div>
+		<div class="box grid_4 grid_5 grid_7 grid_8" id="b42"><a href="#" class="inside"></a></div>
+		<div class="ver"></div>
+		<div class="box grid_4 grid_5 grid_6 grid_7 grid_8 grid_9" id="b43"><a href="#" class="inside"></a></div>
+		<div class="ver"></div>
+		<div class="box grid_5 grid_6 grid_8 grid_9" id="b44"><a href="#" class="inside"></a></div>
+		<div class="ver"></div>
+		<div class="box grid_6 grid_9" id="b45"><a href="#" class="inside"></a></div>
+
+		<div class="clear"></div>
+
+		<!-- hor 4 -->
+		<div class="hor"></div>
+		<div class="dot"></div>
+		<div class="hor"></div>
+		<div class="dot"></div>
+		<div class="hor"></div>
+		<div class="dot"></div>
+		<div class="hor"></div>
+		<div class="dot"></div>
+		<div class="hor"></div>
+
+		<div class="clear"></div>
+
+		<!-- row 5 -->
+		<div class="box grid_7" id="b51"><a href="#" class="inside"></a></div>
+		<div class="ver"></div>
+		<div class="box grid_7 grid_8" id="b52"><a href="#" class="inside"></a></div>
+		<div class="ver"></div>
+		<div class="box grid_7 grid_8 grid_9" id="b53"><a href="#" class="inside"></a></div>
+		<div class="ver"></div>
+		<div class="box grid_8 grid_9" id="b54"><a href="#" class="inside"></a></div>
+		<div class="ver"></div>
+		<div class="box grid_9" id="b55"><a href="#" class="inside"></a></div>
+
+		<div class="clear"></div>
+
+	</div>
+
+	<div id="turn">X's turn.</div>
+
+	<div id="moveGridBlock">
+		<div class="block"></div>
+		<div class="block_ver"></div>
+		<a href="#" id="up" class="block">&#8593; </a>
+		<div class="block_ver"></div>
+		<div class="block"></div>
+
+		<div class="clear"></div>
+		<div class="block_hor"></div>
+
+		<a href="#" id="left" class="block">&#8592; </a>
+		<div class="block_ver"></div>
+		<a href="#" id="down" class="block">&#8595; </a>
+		<div class="block_ver"></div>
+		<a href="#" id="right" class="block">&#8594;</a>
+
+		<div class="clear"></div>
+
+	</div>
+
+	<div class="clear"></div>
+
+
+
+	<script>
+
+		var count = 0;
+
+		var center = 5;
+
+		var ins = document.getElementsByClassName("inside");
+  	var outs = document.getElementsByClassName("box");
+
+  		for(var i =0; i< outs.length; i++){
+	  		ins[i].onclick = function(){
+	  			var inside = (count % 2 == 0)? "X":"O";
+
+	  			count++;
+
+	  			var turn = (count % 2 == 0)? "X":"O";
+	  			document.getElementById("turn").innerHTML = turn+"'s turn.";
+
+
+	  			console.log(count);
+	  			this.parentNode.innerHTML=inside;
+	  			this.remove(this);
+
+	  			var winner = checkWin();
+
+	  			if(winner != null){
+	  				var message = document.getElementById("win_message");
+	  				message.firstChild.innerHTML = winner + " won";
+	  				message.style.display = 'block';
+	  			}
+
+	  		}
+	  	}
+
+	  	var up = document.getElementById("up");
+	  	var down = document.getElementById("down");
+	  	var left = document.getElementById("left");
+	  	var right = document.getElementById("right");
+
+			var grid = document.getElementById("the_grid");	  	
+
+	  	up.onclick = moveUp;
+	  	down.onclick = moveDown;
+	  	left.onclick = moveLeft;
+	  	right.onclick = moveRight;
+
+	  	function moveUp(){
+	  		// make sure there is space to go up
+	  		if(center > 3){
+	  			center -= 3;
+	  			moveGrid();
+	  		}
+	  	}
+
+	  	function moveDown(){
+	  		// make sure there is space to go down
+	  		if(center < 7){
+	  			center += 3;
+	  			moveGrid();
+	  		}
+	  	}
+
+	  	function moveLeft(){
+	  		// make sure there is space to go left
+	  		if(center != 1 && center != 4 && center != 7){
+	  			center -= 1;
+	  			moveGrid();
+	  		}
+	  	}
+
+	  	function moveRight(){
+	  		// make sure there is space to go right
+	  		if(center != 3 && center != 6 && center != 9){
+	  			center += 1;
+	  			moveGrid();
+	  		}
+	  	}
+
+
+
+	  	document.onkeydown = checkKey;
+
+			function checkKey(e) {
+			    e = e || window.event;
+
+			    if (e.keyCode == '37') {
+			        moveLeft();
+			    } else if (e.keyCode == '38') {
+			        moveUp();
+			    } else if (e.keyCode == '39') {
+			        moveRight();
+			    } else if (e.keyCode == '40') {
+			        moveDown();
+			    }
+			}	
+
+	  	var moveGrid = function(){
+	  		count++;
+	  		var turn = (count % 2 == 0)? "X":"O";
+	  		document.getElementById("turn").innerHTML = turn+"'s turn.";
+
+	  		var top = 30;
+	  		if(center > 3) top += 110;
+	  		if(center > 6) top += 110;
+
+	  		var left = 30;
+	  		if(center != 1 && center != 4 && center != 7) left += 110;
+	  		if(center == 3 || center == 6 || center == 9) left += 110;
+
+	  		top = top + "px";
+	  		left = left + "px";
+
+			grid.style.top = top;
+			grid.style.left = left;
+			
+
+			var winner = checkWin();
+
+  			if(winner != null){
+  				var message = document.getElementById("win_message");
+  				message.firstChild.innerHTML = winner + " won";
+  				message.style.display = 'block';
+  			}
+	  	}
+
+	  	var checkWin = function(){
+	  		var lookat = "grid_" + center;
+
+	  		var boxs = document.getElementsByClassName(lookat);
+
+	  		// if box 0 is not empty (left top)
+	  		if(boxs[0].innerHTML == 'X' || boxs[0].innerHTML == 'O'){
+	  			// left - right
+	  			if(boxs[0].innerHTML == boxs[1].innerHTML && boxs[1].innerHTML == boxs[2].innerHTML){
+	  				return boxs[1].innerHTML;
+	  			}
+
+	  			//up - down
+	  			if(boxs[0].innerHTML == boxs[3].innerHTML && boxs[3].innerHTML == boxs[6].innerHTML){
+	  				return boxs[3].innerHTML;
+	  			}
+	  		}
+
+	  		// if box 4 is not empty (center)
+	  		if(boxs[4].innerHTML == 'X' || boxs[4].innerHTML == 'O'){
+	  			// left - right
+	  			if(boxs[3].innerHTML == boxs[4].innerHTML && boxs[4].innerHTML == boxs[5].innerHTML){
+	  				return boxs[4].innerHTML;
+	  			}
+
+	  			// up - down
+	  			if(boxs[1].innerHTML == boxs[4].innerHTML && boxs[4].innerHTML == boxs[7].innerHTML){
+	  				return boxs[4].innerHTML;
+	  			}
+
+	  			// diagonal
+	  			if(boxs[0].innerHTML == boxs[4].innerHTML && boxs[4].innerHTML == boxs[8].innerHTML){
+	  				return boxs[4].innerHTML;
+	  			}
+	  			if(boxs[2].innerHTML == boxs[4].innerHTML && boxs[4].innerHTML == boxs[6].innerHTML){
+	  				return boxs[4].innerHTML;
+	  			}
+	  		}
+
+	  		// if box 8 is not empty (right bottom)
+	  		if(boxs[8].innerHTML == 'X' || boxs[8].innerHTML == 'O'){
+
+	  			// left - right
+	  			if(boxs[6].innerHTML == boxs[7].innerHTML && boxs[7].innerHTML == boxs[8].innerHTML){
+	  				return boxs[7].innerHTML;
+	  			}
+
+	  			//up - down
+	  			if(boxs[2].innerHTML == boxs[5].innerHTML && boxs[5].innerHTML == boxs[8].innerHTML){
+	  				return boxs[5].innerHTML;
+	  			}
+	  		}
+	  	}
+
+	</script>
+</body>
+</html>
