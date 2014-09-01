@@ -1,1 +1,1 @@
-New.ApplicationAdapter = DS.FixtureAdapter;
+BoardGame.ApplicationAdapter = DS.FixtureAdapter;

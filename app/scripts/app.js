@@ -1,4 +1,4 @@
-var New = window.New = Ember.Application.create();
+var BoardGame = window.BoardGame = Ember.Application.create();
 
 /* Order and include as you please. */
 require('scripts/controllers/*');
