@@ -10,19 +10,11 @@ BoardGame.SheepView = Ember.View.extend({
 	HOR_DISTANCE: function() {
 		return this.get('BOX_LENGTH') * 2 * Math.cos(Math.PI/6);
 	}.property('BOX_LENGTH'),
-	
-	didInsertElement: function() {
 
-		Ember.run.scheduleOnce('afterRender', this, this.main);
-
-	},
-
-	main: function() {
-		var canvas = $('#canvas1').get(0).getContext('2d');
-		this.set('canvas',canvas);
-		var FPS = 10;
+	boxObject: function() {
 		var view = this;
 		var hor_distance = this.get('HOR_DISTANCE');
+		var mover = this.get('CoordMove');
 		var box = Ember.Object.extend({
 			exist: false,
 			boxColor: '#ddd',
@@ -40,14 +32,28 @@ BoardGame.SheepView = Ember.View.extend({
 			zBack: null,
 			draw: function() {
 				var box_obj = this;
+				this.exist = true;
 				function hexagon() {
 					view.canvas.beginPath();
-					view.canvas.moveTo(box_obj.xCoord,box_obj.yCoord);
-					view.canvas.lineTo(box_obj.xCoord -hor_distance/2, box_obj.yCoord + view.BOX_LENGTH/2);
-					view.canvas.lineTo(box_obj.xCoord -hor_distance/2, box_obj.yCoord + view.BOX_LENGTH/2 + view.BOX_LENGTH);
-					view.canvas.lineTo(box_obj.xCoord, box_obj.yCoord + view.BOX_LENGTH/2 + view.BOX_LENGTH + view.BOX_LENGTH/2);
-					view.canvas.lineTo(box_obj.xCoord + hor_distance/2, box_obj.yCoord + view.BOX_LENGTH/2 + view.BOX_LENGTH);
-					view.canvas.lineTo(box_obj.xCoord + hor_distance/2, box_obj.yCoord + view.BOX_LENGTH/2);
+					var drawX = box_obj.xCoord;
+					var drawY = box_obj.yCoord;
+					view.canvas.moveTo(drawX, drawY);
+
+					var newCoords = mover.leftDown(drawX, drawY);
+					view.canvas.lineTo(newCoords.x, newCoords.y);
+
+					var newCoords = mover.down(newCoords.x, newCoords.y);
+					view.canvas.lineTo(newCoords.x, newCoords.y);
+
+					var newCoords = mover.rightDown(newCoords.x, newCoords.y);
+					view.canvas.lineTo(newCoords.x, newCoords.y);
+
+					var newCoords = mover.rightUp(newCoords.x, newCoords.y);
+					view.canvas.lineTo(newCoords.x, newCoords.y);
+
+					var newCoords = mover.up(newCoords.x, newCoords.y);
+					view.canvas.lineTo(newCoords.x, newCoords.y);
+
 					view.canvas.closePath();
 				}
 
@@ -57,22 +63,101 @@ BoardGame.SheepView = Ember.View.extend({
 
 				view.canvas.strokeStyle = box_obj.borderColor;
 				hexagon();
-				view.canvas.stroke();
-
-
-				
+				view.canvas.stroke();				
 			}
 		});
-		var piece = Ember.Object.extend({
-			exist: false,
-			topLeft: box.create(),
-			topRight: box.create(),
-			bottomLeft: box.create(),
-			bottomRight: box.create()
-		
-		});
+		return box;
+	}.property('BOX_LENGTH'),
 
-		box.create().draw();
+	CoordMove: function() {
+		var hor_distance = this.get('HOR_DISTANCE');
+		var box_length = this.BOX_LENGTH;
+		return {
+			leftDown: function(x, y) {
+				return { x: x - hor_distance/2, y: y + box_length/2 };
+			},
+			down: function(x, y) {
+				return { x: x, y: y + box_length };
+			},
+			rightDown: function(x, y) {
+				return { x: x + hor_distance/2, y: y + box_length/2 };
+			},
+			rightUp: function(x, y) {
+				return { x: x + hor_distance/2, y: y - box_length/2 };
+			},
+			up: function(x, y) {
+				return { x: x, y: y - box_length };
+			},
+			leftUp: function(x, y) {
+				return { x: x - hor_distance/2, y: y - box_length/2 };
+			}
+		};
+	}.property('BOX_LENGTH'),
+
+	addrToCoord: function(x, y) {
+		var resultX = this.BOX_LENGTH;
+		var resultY = 0;
+		var mover = this.get('CoordMove');
+
+		if (x === 0 && y === 0) {
+			return {x: resultX, y: resultY};
+		}
+
+		var posY = -y;
+		for (i = 0; i < posY; i++) {
+			var newCoords = mover.leftDown(resultX, resultY);
+			newCoords = mover.down(newCoords.x, newCoords.y);
+			resultX = newCoords.x;
+			resultY = newCoords.y;
+		}
+
+		for (i = 0; i < x; i++) {
+			var newCoords = mover.rightDown(resultX, resultY);
+			newCoords = mover.rightUp(newCoords.x, newCoords.y);
+			resultX = newCoords.x;
+			resultY = newCoords.y;
+		}
+
+		return { x: resultX, y: resultY };
+	},
+
+	makeBox: function(x, y) {
+		var box = this.get('boxObject').create();
+		box.x = x;
+		box.y = y;
+		var newCoords = this.addrToCoord(x, y);
+		box.xCoord = newCoords.x;
+		box.yCoord = newCoords.y;
+		box.draw();
+	},
+	
+	didInsertElement: function() {
+
+		Ember.run.scheduleOnce('afterRender', this, this.main);
+
+	},
+
+	main: function() {
+		var canvas = $('#canvas1').get(0).getContext('2d');
+		this.set('canvas',canvas);
+		var FPS = 10;
+		var view = this;
+		var hor_distance = this.get('HOR_DISTANCE');
+		
+		// var piece = Ember.Object.extend({
+		// 	exist: false,
+		// 	topLeft: box.create(),
+		// 	topRight: box.create(),
+		// 	bottomLeft: box.create(),
+		// 	bottomRight: box.create()
+		
+		// });
+
+		// this.get('boxObject').create().draw();
+		this.makeBox(0, 0);
+		this.makeBox(1, -1);
+		this.makeBox(2, -1);
+		this.makeBox(1, 0);
 
 		// var board = 
 
