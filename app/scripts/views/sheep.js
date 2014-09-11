@@ -128,7 +128,7 @@ BoardGame.SheepView = Ember.View.extend({
 		var newCoords = this.addrToCoord(x, y);
 		box.xCoord = newCoords.x;
 		box.yCoord = newCoords.y;
-		box.draw();
+		return box;
 	},
 	
 	didInsertElement: function() {
@@ -153,11 +153,10 @@ BoardGame.SheepView = Ember.View.extend({
 		
 		// });
 
-		// this.get('boxObject').create().draw();
-		this.makeBox(0, 0);
-		this.makeBox(1, -1);
-		this.makeBox(2, -1);
-		this.makeBox(1, 0);
+		this.makeBox(0, 0).draw();
+		this.makeBox(1, -1).draw();
+		this.makeBox(2, -1).draw();
+		this.makeBox(1, 0).draw();
 
 		// var board = 
 
